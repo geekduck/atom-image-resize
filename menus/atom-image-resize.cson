@@ -1,0 +1,14 @@
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Resize Image'
+      'submenu': [
+        {
+          'label': 'Toggle'
+          'command': 'atom-image-resize:toggle'
+        }
+      ]
+    ]
+  }
+]

@@ -1,0 +1,36 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+.atom-image-resize-container {
+  text-align: center;
+  color: @text-color;
+  background-color: @base-border-color;
+  overflow: scroll;
+
+  .atom-image-resize {
+    margin: 15px;
+    padding: 15px;
+    background-color: @base-background-color;
+    canvas {
+      background-color: white;
+    }
+    input {
+      color: black;
+    }
+    table.resize-parameter {
+      margin: 5px auto;
+      th {
+        padding-right: 5px;
+        text-align: right;
+      }
+      td {
+        text-align: left;
+      }
+    }
+  }
+
+}
+

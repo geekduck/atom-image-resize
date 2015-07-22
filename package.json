@@ -1,0 +1,15 @@
+{
+  "name": "atom-image-resize",
+  "main": "./lib/main",
+  "version": "0.0.1",
+  "description": "A resize tool for image files and Base64 encoded images.",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {
+    "fs-plus": "^2.8.1",
+    "space-pen": "^5.1.1",
+    "underscore-plus": "^1.6.6"
+  }
+}
