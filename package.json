@@ -3,9 +3,11 @@
   "main": "./lib/main",
   "version": "0.0.1",
   "description": "A resize tool for image files and Base64 encoded images.",
+  "keywords": [],
+  "repository": "https://github.com/geekduck/atom-image-resize",
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0"
+    "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
     "fs-plus": "^2.8.1",
