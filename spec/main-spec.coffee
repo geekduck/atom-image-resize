@@ -1,11 +1,12 @@
-MyPackage = require '../lib/base64-image-preview'
+###
+main = require '../lib/main'
 
 # Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
 #
 # To run a specific `it` or `describe` block add an `f` to the front (e.g. `fit`
 # or `fdescribe`). Remove the `f` to unfocus the block.
 
-describe "Base64ImagePreview", ->
+describe "main", ->
   [workspaceElement, activationPromise] = []
 
   beforeEach ->
@@ -60,3 +61,4 @@ describe "Base64ImagePreview", ->
         expect(myPackageElement).toBeVisible()
         atom.commands.dispatch workspaceElement, 'base64-image-preview:toggle'
         expect(myPackageElement).not.toBeVisible()
+###

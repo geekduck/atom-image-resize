@@ -1,5 +1,9 @@
-MyPackageView = require '../lib/atom-image-resize-view'
+ImageResizeView = require '../lib/atom-image-resize-view'
 
-describe "Base64ImagePreviewView", ->
-  it "has one valid test", ->
-    expect("life").toBe "easy"
+describe "ImageResizeView", ->
+  describe "when atom open preview for text editor", ->
+    beforeEach ->
+      @editorId = "12"
+    it "should be has editorId property", ->
+      view = new ImageResizeView(editorId: @editorId)
+      expect(view.editorId).toBe "#{@editorId}"
