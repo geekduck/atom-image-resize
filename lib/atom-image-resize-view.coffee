@@ -12,6 +12,7 @@ module.exports =
         @div outlet: "imageContainer"
 
     protocol: 'atom-image-resize:'
+    regExpBase64EncodedImage: /data:image\/(jpeg|png);base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?/gi
 
     constructor: ({@editorId, @filePath}) ->
       super
@@ -67,9 +68,12 @@ module.exports =
         @disposables.add atom.packages.onDidActivateInitialPackages(resolve)
 
     addResizableImageViews: () ->
-      words = @editor.getText().split(/\s+/)
-      words.forEach (base64string, key) =>
+      base64Images = @findBase64EncodedImage @editor.getText()
+      base64Images.forEach (base64string, key) =>
         @addResizableImageView uri: base64string if base64string.length > 8
+
+    findBase64EncodedImage: (text) ->
+      text.match(@regExpBase64EncodedImage) || []
 
     addResizableImageView: ({uri, filePath}) ->
       if uri?
