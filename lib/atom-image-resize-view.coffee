@@ -3,129 +3,7 @@ path = require 'path'
 {$, $$$, View} = require 'space-pen'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-
-class ResizableImageView extends View
-  @content: ->
-    @div class: 'atom-image-resize native-key-bindings', tabindex: -1, =>
-      @canvas outlet: "canvas"
-      @div =>
-        @div class: "block", =>
-          @label class: "inline-block", for: "resize-width", "Width:"
-          @input outlet: "inputWidth", id: "resize-width" , class: 'inline-block resize-width', type: 'text'
-        @div class: "block", =>
-          @label class: "inline-block", for: "resize-height", "Height:"
-          @input outlet: "inputHeight", id: "resize-height", class: 'inline-block resize-height', type: 'text'
-        @div class: "block", =>
-          @label class: "inline-block", for: "resize-base", "Unit:"
-          @select outlet: "selectImageUnit", id: "resize-image-unit", class: 'inline-block resize-image-unit', =>
-            @option value: "pixel", "pixel"
-            @option value: "percent", "percent"
-        @div class: "block", =>
-          @label class: "inline-block", for: "resize-destination", "Destination type:"
-          @select outlet: "selectExtension", id: "resize-destination", class: 'inline-block resize-destination', =>
-            @option value: "png", "png"
-            @option value: "jpeg", "jpeg"
-        @div class: "block", =>
-          @label class: "inline-block", for: "resize-proportionally", class: 'setting-title', " Resize proportionally:"
-          @input outlet: "inputProportionally", id: "resize-proportionally", class: 'inline-block resize-proportionally', type: 'checkbox', checked: "checked"
-
-        @button class: 'btn fa fa-expand', click: 'resize', " resize"
-        @button class: 'btn btn-default fa fa-file-o', click: 'saveAs', " Save As ..."
-        @button class: 'btn btn-default fa fa-clipboard', click: 'clippy', " Copy Clipboard"
-
-  decimalPoint: 2
-
-  constructor: ({@uri, @filePath}) ->
-    super
-    @uri = @uri.replace(/^data:image\/jpg/, "data:image/jpeg") if @uri?
-    @image = new Image
-    @image.onload = =>
-      @loadImage @image
-    @resizeProportionally = true
-
-    @eventHandler()
-
-  attached: ->
-    @image.src = @uri || @filePath
-
-  eventHandler: ->
-    @selectImageUnit.on 'change', (event)=>
-      @changeImageUnit(event)
-    @inputWidth.on 'keyup', (event)=>
-      @changeRatio(event)
-    @inputHeight.on 'keyup', (event)=>
-      @changeRatio(event)
-    @inputProportionally.on 'change', (event)=>
-      @resizeProportionally = $(event.target).prop "checked"
-
-  changeRatio: (event)->
-    return unless @resizeProportionally
-
-    if event.target.id is @inputWidth[0].id
-      width = Number $(event.target).val()
-      unless isNaN width
-        ratio = width / @originalImage.width
-        @inputHeight.val (Math.round @originalImage.height * ratio)
-    else if event.target.id is @inputHeight[0].id
-      height = Number $(event.target).val()
-      unless isNaN height
-        ratio = height / @originalImage.height
-        @inputWidth.val (Math.round @originalImage.width * ratio)
-
-
-  changeImageUnit: (event)->
-    if @selectImageUnit.val() == "pixel"
-      @convertPercentToPixel(event)
-    else if @selectImageUnit.val() == "percent"
-      @convertPixelToPercent(event)
-
-  convertPixelToPercent: ->
-    console.log "convertPixelToPercent"
-
-  convertPercentToPixel: ->
-    console.log "convertPercentToPixel"
-
-  loadImage: (image)->
-    ctx = @canvas[0].getContext '2d'
-    @canvas.attr
-      width: image.width
-      height: image.height
-    ctx.drawImage image, 0, 0
-    @originalImage = image
-    @inputWidth.val image.width
-    @inputHeight.val image.height
-    @selectExtension.val @getExtension()
-
-  getExtension: ->
-    extension
-    if @filePath?
-      extension = @filePath.slice(@filePath.lastIndexOf('.')).substring(1).replace("jpg", "jpeg")
-    if @uri?
-      extension = RegExp.$1 if @uri.match(/^data:image\/(png|jpeg|gif)/)?
-      extension = "png" if extension == "gif"
-    console.log extension
-    extension
-
-  saveAs: ->
-    return if @loading
-    console.log "saveAs"
-
-  resize: ->
-    dstWidth = @inputWidth.val()
-    dstHeigth = @inputHeight.val()
-    resizeCanvas = document.createElement "canvas"
-    resizeCanvas.setAttribute 'width', dstWidth
-    resizeCanvas.setAttribute 'height', dstHeigth
-    resizeCtx = resizeCanvas.getContext '2d'
-    resizeCtx.drawImage @originalImage, 0, 0, @originalImage.width, @originalImage.height, 0, 0, dstWidth, dstHeigth
-    ctx = @canvas[0].getContext '2d'
-    @canvas.attr
-      width: dstWidth
-      height: dstHeigth
-    ctx.drawImage resizeCanvas, 0, 0
-
-  clippy: ->
-    atom.clipboard.write @canvas[0].toDataURL("image/" + @selectExtension.val())
+ResizableImageView = require './resizable-image-view'
 
 module.exports =
   class ImageResizeView extends View
@@ -163,17 +41,11 @@ module.exports =
       @disposables.dispose()
 
     onDidChangeTitle: (callback) ->
-      console.log 'onDidChangeTitle'
       @emitter.on 'did-change-title', callback
 
     onDidChangeModified: (callback) ->
-      console.log 'onDidChangeModified'
       # No op to suppress deprecation warning
       new Disposable
-
-    onDidChangeMarkdown: (callback) ->
-      console.log 'onDidChangeModified'
-      @emitter.on 'did-change-markdown', callback
 
     subscribeToFilePath: (filePath) ->
       @addResizableImageView filePath: filePath
@@ -197,7 +69,6 @@ module.exports =
     addResizableImageViews: () ->
       words = @editor.getText().split(/\s+/)
       words.forEach (base64string, key) =>
-        console.log base64string
         @addResizableImageView uri: base64string if base64string.length > 8
 
     addResizableImageView: ({uri, filePath}) ->
