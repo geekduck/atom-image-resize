@@ -1,4 +1,4 @@
-{View} = require 'space-pen'
+{$, View} = require 'space-pen'
 
 module.exports =
   class ResizableImageView extends View
