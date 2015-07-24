@@ -15,12 +15,12 @@ module.exports =
           @div class: "block", =>
             @label class: "inline-block", for: "resize-base", "Unit:"
             @select outlet: "selectImageUnit", id: "resize-image-unit", class: 'inline-block resize-image-unit', =>
-              @option value: "pixel", "pixel"
+              @option value: "pixel", selected: "selected", "pixel"
               @option value: "percent", "percent"
           @div class: "block", =>
             @label class: "inline-block", for: "resize-destination", "Destination type:"
             @select outlet: "selectExtension", id: "resize-destination", class: 'inline-block resize-destination', =>
-              @option value: "png", "png"
+              @option value: "png", selected: "selected", "png"
               @option value: "jpeg", "jpeg"
           @div class: "block", =>
             @label class: "inline-block", for: "resize-proportionally", class: 'setting-title', " Resize proportionally:"
@@ -30,11 +30,16 @@ module.exports =
           @button class: 'btn btn-default fa fa-file-o', click: 'saveAs', " Save As ..."
           @button class: 'btn btn-default fa fa-clipboard', click: 'clippy', " Copy Clipboard"
 
+    extension: "png"
+    unit: "pixel"
+    loaded: false
+
     initialize: ({@uri, @filePath}) ->
       @uri = @uri.replace(/^data:image\/jpg/, "data:image/jpeg") if @uri?
       @image = new Image
       @image.onload = =>
         @loadImage @image
+        @loaded = true
       @resizeProportionally = true
 
       @eventHandler()
@@ -86,18 +91,17 @@ module.exports =
         height: image.height
       ctx.drawImage image, 0, 0
       @originalImage = image
+      @getExtension()
       @inputWidth.val image.width
       @inputHeight.val image.height
-      @selectExtension.val @getExtension()
+      @selectExtension.val @extension
 
     getExtension: ->
-      extension
       if @filePath?
-        extension = @filePath.slice(@filePath.lastIndexOf('.')).substring(1).replace("jpg", "jpeg")
+        @extension = @filePath.slice(@filePath.lastIndexOf('.')).substring(1).replace("jpg", "jpeg")
       if @uri?
-        extension = RegExp.$1 if @uri.match(/^data:image\/(png|jpeg|gif)/)?
-        extension = "png" if extension == "gif"
-      extension
+        @extension = RegExp.$1 if @uri.match(/^data:image\/(png|jpeg|gif)/)?
+      @extension = "png" if @extension == "gif" # canvas.toDataURL can set 'jpeg' and 'png' but 'gif'
 
     saveAs: ->
       return if @loading
