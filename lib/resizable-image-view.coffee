@@ -30,8 +30,7 @@ module.exports =
           @button class: 'btn btn-default fa fa-file-o', click: 'saveAs', " Save As ..."
           @button class: 'btn btn-default fa fa-clipboard', click: 'clippy', " Copy Clipboard"
 
-    constructor: ({@uri, @filePath}) ->
-      super
+    initialize: ({@uri, @filePath}) ->
       @uri = @uri.replace(/^data:image\/jpg/, "data:image/jpeg") if @uri?
       @image = new Image
       @image.onload = =>
