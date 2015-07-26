@@ -1,4 +1,4 @@
-{View} = require 'space-pen'
+{$, View} = require 'space-pen'
 
 module.exports =
   class ResizableImageView extends View
@@ -15,12 +15,12 @@ module.exports =
           @div class: "block", =>
             @label class: "inline-block", for: "resize-base", "Unit:"
             @select outlet: "selectImageUnit", id: "resize-image-unit", class: 'inline-block resize-image-unit', =>
-              @option value: "pixel", "pixel"
+              @option value: "pixel", selected: "selected", "pixel"
               @option value: "percent", "percent"
           @div class: "block", =>
             @label class: "inline-block", for: "resize-destination", "Destination type:"
             @select outlet: "selectExtension", id: "resize-destination", class: 'inline-block resize-destination', =>
-              @option value: "png", "png"
+              @option value: "png", selected: "selected", "png"
               @option value: "jpeg", "jpeg"
           @div class: "block", =>
             @label class: "inline-block", for: "resize-proportionally", class: 'setting-title', " Resize proportionally:"
@@ -30,12 +30,16 @@ module.exports =
           @button class: 'btn btn-default fa fa-file-o', click: 'saveAs', " Save As ..."
           @button class: 'btn btn-default fa fa-clipboard', click: 'clippy', " Copy Clipboard"
 
-    constructor: ({@uri, @filePath}) ->
-      super
+    extension: "png"
+    unit: "pixel"
+    loaded: false
+
+    initialize: ({@uri, @filePath}) ->
       @uri = @uri.replace(/^data:image\/jpg/, "data:image/jpeg") if @uri?
       @image = new Image
       @image.onload = =>
         @loadImage @image
+        @loaded = true
       @resizeProportionally = true
 
       @eventHandler()
@@ -69,16 +73,20 @@ module.exports =
 
 
     changeImageUnit: (event)->
-      if @selectImageUnit.val() == "pixel"
+      unit = @selectImageUnit.val()
+      if unit == "pixel"
         @convertPercentToPixel(event)
-      else if @selectImageUnit.val() == "percent"
+      else if unit == "percent"
         @convertPixelToPercent(event)
 
     convertPixelToPercent: ->
-      console.log "convertPixelToPercent"
+      @inputWidth.val( Math.round 100 * @inputWidth.val() / @originalImage.width)
+      @inputHeight.val( Math.round 100 * @inputHeight.val() / @originalImage.height)
+
 
     convertPercentToPixel: ->
-      console.log "convertPercentToPixel"
+      @inputWidth.val( Math.round @originalImage.width * @inputWidth.val() / 100)
+      @inputHeight.val( Math.round @originalImage.height * @inputHeight.val() / 100)
 
     loadImage: (image)->
       ctx = @canvas[0].getContext '2d'
@@ -87,35 +95,48 @@ module.exports =
         height: image.height
       ctx.drawImage image, 0, 0
       @originalImage = image
+      @getExtension()
+      @resizeWidth = image.width
+      @resizeHeight = image.height
       @inputWidth.val image.width
       @inputHeight.val image.height
-      @selectExtension.val @getExtension()
+      @selectExtension.val @extension
 
     getExtension: ->
-      extension
       if @filePath?
-        extension = @filePath.slice(@filePath.lastIndexOf('.')).substring(1).replace("jpg", "jpeg")
+        @extension = @filePath.slice(@filePath.lastIndexOf('.')).substring(1).replace("jpg", "jpeg")
       if @uri?
-        extension = RegExp.$1 if @uri.match(/^data:image\/(png|jpeg|gif)/)?
-        extension = "png" if extension == "gif"
-      extension
+        @extension = RegExp.$1 if @uri.match(/^data:image\/(png|jpeg|gif)/)?
+      @extension = "png" if @extension == "gif" # canvas.toDataURL can set 'jpeg' and 'png' but 'gif'
 
     saveAs: ->
       return if @loading
       console.log "saveAs"
 
+    getResizeWidthHeight: ->
+      unit = @selectImageUnit.val()
+      if unit == "pixel"
+        return {
+          width: @inputWidth.val()
+          height: @inputHeight.val()
+        }
+      else if unit == "percent"
+        return {
+          width: @originalImage.width * @inputWidth.val() / 100
+          height: @originalImage.height * @inputHeight.val() / 100
+        }
+
     resize: ->
-      dstWidth = @inputWidth.val()
-      dstHeigth = @inputHeight.val()
+      {width, height} = @getResizeWidthHeight()
       resizeCanvas = document.createElement "canvas"
-      resizeCanvas.setAttribute 'width', dstWidth
-      resizeCanvas.setAttribute 'height', dstHeigth
+      resizeCanvas.setAttribute 'width', width
+      resizeCanvas.setAttribute 'height', height
       resizeCtx = resizeCanvas.getContext '2d'
-      resizeCtx.drawImage @originalImage, 0, 0, @originalImage.width, @originalImage.height, 0, 0, dstWidth, dstHeigth
+      resizeCtx.drawImage @originalImage, 0, 0, @originalImage.width, @originalImage.height, 0, 0, width, height
       ctx = @canvas[0].getContext '2d'
       @canvas.attr
-        width: dstWidth
-        height: dstHeigth
+        width: width
+        height: height
       ctx.drawImage resizeCanvas, 0, 0
 
     clippy: ->
