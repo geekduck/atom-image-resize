@@ -73,9 +73,10 @@ module.exports =
 
 
     changeImageUnit: (event)->
-      if @selectImageUnit.val() == "pixel"
+      unit = @selectImageUnit.val()
+      if unit == "pixel"
         @convertPercentToPixel(event)
-      else if @selectImageUnit.val() == "percent"
+      else if unit == "percent"
         @convertPixelToPercent(event)
 
     convertPixelToPercent: ->
@@ -95,6 +96,8 @@ module.exports =
       ctx.drawImage image, 0, 0
       @originalImage = image
       @getExtension()
+      @resizeWidth = image.width
+      @resizeHeight = image.height
       @inputWidth.val image.width
       @inputHeight.val image.height
       @selectExtension.val @extension
@@ -110,18 +113,30 @@ module.exports =
       return if @loading
       console.log "saveAs"
 
+    getResizeWidthHeight: ->
+      unit = @selectImageUnit.val()
+      if unit == "pixel"
+        return {
+          width: @inputWidth.val()
+          height: @inputHeight.val()
+        }
+      else if unit == "percent"
+        return {
+          width: @originalImage.width * @inputWidth.val() / 100
+          height: @originalImage.height * @inputHeight.val() / 100
+        }
+
     resize: ->
-      dstWidth = @inputWidth.val()
-      dstHeigth = @inputHeight.val()
+      {width, height} = @getResizeWidthHeight()
       resizeCanvas = document.createElement "canvas"
-      resizeCanvas.setAttribute 'width', dstWidth
-      resizeCanvas.setAttribute 'height', dstHeigth
+      resizeCanvas.setAttribute 'width', width
+      resizeCanvas.setAttribute 'height', height
       resizeCtx = resizeCanvas.getContext '2d'
-      resizeCtx.drawImage @originalImage, 0, 0, @originalImage.width, @originalImage.height, 0, 0, dstWidth, dstHeigth
+      resizeCtx.drawImage @originalImage, 0, 0, @originalImage.width, @originalImage.height, 0, 0, width, height
       ctx = @canvas[0].getContext '2d'
       @canvas.attr
-        width: dstWidth
-        height: dstHeigth
+        width: width
+        height: height
       ctx.drawImage resizeCanvas, 0, 0
 
     clippy: ->
