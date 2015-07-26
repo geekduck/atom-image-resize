@@ -1,4 +1,4 @@
-{View} = require 'space-pen'
+{$, View} = require 'space-pen'
 
 module.exports =
   class ResizableImageView extends View
@@ -79,10 +79,13 @@ module.exports =
         @convertPixelToPercent(event)
 
     convertPixelToPercent: ->
-      console.log "convertPixelToPercent"
+      @inputWidth.val( Math.round 100 * @inputWidth.val() / @originalImage.width)
+      @inputHeight.val( Math.round 100 * @inputHeight.val() / @originalImage.height)
+
 
     convertPercentToPixel: ->
-      console.log "convertPercentToPixel"
+      @inputWidth.val( Math.round @originalImage.width * @inputWidth.val() / 100)
+      @inputHeight.val( Math.round @originalImage.height * @inputHeight.val() / 100)
 
     loadImage: (image)->
       ctx = @canvas[0].getContext '2d'
