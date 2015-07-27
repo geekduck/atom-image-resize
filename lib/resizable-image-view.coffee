@@ -60,17 +60,27 @@ module.exports =
     changeRatio: (event)->
       return unless @resizeProportionally
 
-      if event.target.id is @inputWidth[0].id
-        width = Number $(event.target).val()
-        unless isNaN width
-          ratio = width / @originalImage.width
-          @inputHeight.val (Math.round @originalImage.height * ratio)
-      else if event.target.id is @inputHeight[0].id
-        height = Number $(event.target).val()
-        unless isNaN height
-          ratio = height / @originalImage.height
-          @inputWidth.val (Math.round @originalImage.width * ratio)
-
+      unit = @selectImageUnit.val()
+      if unit == "pixel"
+        if event.target.id is @inputWidth[0].id
+          width = Number $(event.target).val()
+          unless isNaN width
+            ratio = width / @originalImage.width
+            @inputHeight.val (Math.round @originalImage.height * ratio)
+        else if event.target.id is @inputHeight[0].id
+          height = Number $(event.target).val()
+          unless isNaN height
+            ratio = height / @originalImage.height
+            @inputWidth.val (Math.round @originalImage.width * ratio)
+      else if unit == "percent"
+        if event.target.id is @inputWidth[0].id
+          width = Number $(event.target).val()
+          unless isNaN width
+            @inputHeight.val width
+        else if event.target.id is @inputHeight[0].id
+          height = Number $(event.target).val()
+          unless isNaN height
+            @inputWidth.val height
 
     changeImageUnit: (event)->
       unit = @selectImageUnit.val()
