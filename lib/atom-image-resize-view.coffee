@@ -56,6 +56,7 @@ module.exports =
         @editor = @editorForId(editorId)
         if @editor?
           @emitter.emit 'did-change-title' if @editor?
+          @handleEvents()
           @addResizableImageViews()
         else
           # The editor this preview was created for has been closed so close
@@ -67,10 +68,18 @@ module.exports =
       else
         @disposables.add atom.packages.onDidActivateInitialPackages(resolve)
 
+    handleEvents: ->
+      if @editor?
+        @disposables.add @editor.onDidStopChanging => @addResizableImageViews()
+
     addResizableImageViews: () ->
+      @resetImageViews()
       base64Images = @findBase64EncodedImage @editor.getText()
       base64Images.forEach (base64string, key) =>
         @addResizableImageView uri: base64string if base64string.length > 8
+
+    resetImageViews: ()->
+      @imageContainer.empty()
 
     findBase64EncodedImage: (text) ->
       text.match(@regExpBase64EncodedImage) || []
@@ -108,15 +117,3 @@ module.exports =
         @file.getPath()
       else if @editor?
         @editor.getPath()
-
-    showError: (result) ->
-      failureMessage = result?.message
-
-      @html $$$ ->
-        @h2 'Previewing Image Failed'
-        @h3 failureMessage if failureMessage?
-
-    showLoading: ->
-      @loading = true
-      @html $$$ ->
-        @div class: 'markdown-spinner', 'Loading Markdown\u2026'
