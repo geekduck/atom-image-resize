@@ -1,4 +1,6 @@
+path = require 'path'
 {$, View} = require 'space-pen'
+fs = require 'fs-plus'
 
 module.exports =
   class ResizableImageView extends View
@@ -120,8 +122,30 @@ module.exports =
       @extension = "png" if @extension == "gif" # canvas.toDataURL can set 'jpeg' and 'png' but 'gif'
 
     saveAs: ->
-      return if @loading
-      console.log "saveAs"
+      filePath = @getPath()
+      title = 'image'
+      if filePath
+        title = path.parse(filePath).name
+        filePath += ".#{@selectExtension.val()}"
+      else
+        filePath = "image.#{@selectExtension.val()}"
+        if projectPath = atom.project.getPaths()[0]
+          filePath = path.join(projectPath, filePath)
+
+      if imageFilePath = atom.showSaveDialogSync(filePath)
+        binary = @getBinary()
+        console.dir binary
+        fs.writeFileSync(imageFilePath, binary)
+        atom.workspace.open(imageFilePath)
+
+    getBinary: ->
+      new Buffer(@canvas[0].toDataURL("image/#{@selectExtension.val()}").split(',')[1], 'base64')
+
+    getPath: ->
+      if @file?
+        @file.getPath()
+      else if @editor?
+        @editor.getPath()
 
     getResizeWidthHeight: ->
       unit = @selectImageUnit.val()
