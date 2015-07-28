@@ -3,7 +3,12 @@
   "main": "./lib/main",
   "version": "0.1.0",
   "description": "A resize tool for image files and Base64 encoded images.",
-  "keywords": [],
+  "keywords": [
+    "preview",
+    "resize",
+    "image",
+    "base64"
+  ],
   "repository": "https://github.com/geekduck/atom-image-resize",
   "license": "MIT",
   "engines": {
