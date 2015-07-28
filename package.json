@@ -1,7 +1,7 @@
 {
   "name": "atom-image-resize",
   "main": "./lib/main",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A resize tool for image files and Base64 encoded images.",
   "keywords": [],
   "repository": "https://github.com/geekduck/atom-image-resize",
