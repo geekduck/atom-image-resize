@@ -1,36 +1,55 @@
 path = require 'path'
-{$, View} = require 'space-pen'
+{$, $$$, View, TextEditorView} = require 'atom-space-pen-views'
 fs = require 'fs-plus'
 
 module.exports =
   class ResizableImageView extends View
     @content: ->
-      @div class: 'atom-image-resize native-key-bindings', tabindex: -1, =>
-        @canvas outlet: "canvas"
-        @div =>
-          @div class: "block", =>
-            @label class: "inline-block", for: "resize-width", "Width:"
-            @input outlet: "inputWidth", id: "resize-width" , class: 'inline-block resize-width', type: 'text'
-          @div class: "block", =>
-            @label class: "inline-block", for: "resize-height", "Height:"
-            @input outlet: "inputHeight", id: "resize-height", class: 'inline-block resize-height', type: 'text'
-          @div class: "block", =>
-            @label class: "inline-block", for: "resize-base", "Unit:"
-            @select outlet: "selectImageUnit", id: "resize-image-unit", class: 'inline-block resize-image-unit', =>
-              @option value: "pixel", selected: "selected", "pixel"
-              @option value: "percent", "percent"
-          @div class: "block", =>
-            @label class: "inline-block", for: "resize-destination", "Destination type:"
-            @select outlet: "selectExtension", id: "resize-destination", class: 'inline-block resize-destination', =>
-              @option value: "png", selected: "selected", "png"
-              @option value: "jpeg", "jpeg"
-          @div class: "block", =>
-            @label class: "inline-block", for: "resize-proportionally", class: 'setting-title', " Resize proportionally:"
-            @input outlet: "inputProportionally", id: "resize-proportionally", class: 'inline-block resize-proportionally', type: 'checkbox', checked: "checked"
-
-          @button class: 'btn fa fa-expand', click: 'resize', " resize"
-          @button class: 'btn btn-default fa fa-file-o', click: 'saveAs', " Save As ..."
-          @button class: 'btn btn-default fa fa-clipboard', click: 'clippy', " Copy Clipboard"
+      @div class: 'atom-image-resize', tabindex: -1, =>
+        @div class: "canvas-container", =>
+          @canvas outlet: "canvas"
+        @div class: "settings-view atom-image-resize-settings", =>
+          @div class: "control-group", =>
+            @div class: "controls", =>
+              @label class: "control-label", =>
+                @div class: "setting-title", "Width"
+                @div class: "setting-description"
+              @div class: "controls", =>
+                @subview "inputWidth", new TextEditorView mini: true, attributes: {id:"inputWidth"}
+          @div class: "control-group", =>
+            @div class: "controls", =>
+              @label class: "control-label", =>
+                @div class: "setting-title", "Height"
+                @div class: "setting-description"
+              @div class: "controls", =>
+                @subview "inputHeight", new TextEditorView mini: true, attributes: {id:"inputHeight"}
+          @div class: "control-group", =>
+            @div class: "controls", =>
+              @label class: "control-label", =>
+                @div class: "setting-title", "Unit"
+                @div class: "setting-description"
+              @select outlet: "selectImageUnit", id: "resize-image-unit", class: 'form-control', =>
+                @option value: "pixel", selected: "selected", "pixel"
+                @option value: "percent", "percent"
+          @div class: "control-group", =>
+            @div class: "controls", =>
+              @label class: "control-label", =>
+                @div class: "setting-title", "Destination type"
+                @div class: "setting-description"
+              @select outlet: "selectExtension", id: "resize-destination", class: 'form-control', =>
+                @option value: "png", selected: "selected", "png"
+                @option value: "jpeg", "jpeg"
+          @div class: "control-group", =>
+            @div class: "controls", =>
+              @div class: "checkbox", =>
+                @label for: "resize-proportionally", =>
+                  @input outlet: "inputProportionally", id: "resize-proportionally", type: 'checkbox', checked: "checked"
+                  @div class: "setting-title", "Resize proportionally"
+                @div class: "setting-description"
+        @div class: "block", =>
+          @button class: 'inline-block btn fa fa-expand', click: 'resize', " resize"
+          @button class: 'inline-block btn fa fa-file-o', click: 'saveAs', " Save As ..."
+          @button class: 'inline-block btn fa fa-clipboard', click: 'clippy', " Copy Clipboard"
 
     extension: "png"
     unit: "pixel"
@@ -65,24 +84,27 @@ module.exports =
       unit = @selectImageUnit.val()
       if unit == "pixel"
         if event.target.id is @inputWidth[0].id
-          width = Number $(event.target).val()
+          width = Number @inputWidth.getText()
+          console.log "width:#{width}"
           unless isNaN width
             ratio = width / @originalImage.width
-            @inputHeight.val (Math.round @originalImage.height * ratio)
+            console.dir @inputHeight
+            @inputHeight.setText (Math.round @originalImage.height * ratio) + ""
         else if event.target.id is @inputHeight[0].id
-          height = Number $(event.target).val()
+          height = Number @inputHeight.getText()
+          console.log "height:#{height}"
           unless isNaN height
             ratio = height / @originalImage.height
-            @inputWidth.val (Math.round @originalImage.width * ratio)
+            @inputWidth.setText (Math.round @originalImage.width * ratio) + ""
       else if unit == "percent"
         if event.target.id is @inputWidth[0].id
-          width = Number $(event.target).val()
+          width = Number @inputWidth.getText()
           unless isNaN width
-            @inputHeight.val width
+            @inputHeight.setText width + ""
         else if event.target.id is @inputHeight[0].id
-          height = Number $(event.target).val()
+          height = Number @inputHeight.getText()
           unless isNaN height
-            @inputWidth.val height
+            @inputWidth.setText height + ""
 
     changeImageUnit: (event)->
       unit = @selectImageUnit.val()
@@ -92,13 +114,13 @@ module.exports =
         @convertPixelToPercent(event)
 
     convertPixelToPercent: ->
-      @inputWidth.val( Math.round 100 * @inputWidth.val() / @originalImage.width)
-      @inputHeight.val( Math.round 100 * @inputHeight.val() / @originalImage.height)
+      @inputWidth.setText Math.round(100 * @inputWidth.getText() / @originalImage.width) + ""
+      @inputHeight.setText Math.round(100 * @inputHeight.getText() / @originalImage.height) + ""
 
 
     convertPercentToPixel: ->
-      @inputWidth.val( Math.round @originalImage.width * @inputWidth.val() / 100)
-      @inputHeight.val( Math.round @originalImage.height * @inputHeight.val() / 100)
+      @inputWidth.setText Math.round(@originalImage.width * @inputWidth.getText() / 100) + ""
+      @inputHeight.setText Math.round(@originalImage.height * @inputHeight.getText() / 100) + ""
 
     loadImage: (image)->
       ctx = @canvas[0].getContext '2d'
@@ -110,8 +132,8 @@ module.exports =
       @getExtension()
       @resizeWidth = image.width
       @resizeHeight = image.height
-      @inputWidth.val image.width
-      @inputHeight.val image.height
+      @inputWidth.setText image.width + ""
+      @inputHeight.setText image.height + ""
       @selectExtension.val @extension
 
     getExtension: ->
@@ -151,13 +173,13 @@ module.exports =
       unit = @selectImageUnit.val()
       if unit == "pixel"
         return {
-          width: @inputWidth.val()
-          height: @inputHeight.val()
+          width: @inputWidth.getText()
+          height: @inputHeight.getText()
         }
       else if unit == "percent"
         return {
-          width: @originalImage.width * @inputWidth.val() / 100
-          height: @originalImage.height * @inputHeight.val() / 100
+          width: @originalImage.width * @inputWidth.getText() / 100
+          height: @originalImage.height * @inputHeight.getText() / 100
         }
 
     resize: ->

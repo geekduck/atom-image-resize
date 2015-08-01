@@ -8,7 +8,7 @@ ResizableImageView = require './resizable-image-view'
 module.exports =
   class ImageResizeView extends View
     @content: ->
-      @div class: 'atom-image-resize-container native-key-bindings', tabindex: -1, =>
+      @div class: 'atom-image-resize-container', tabindex: -1, =>
         @div outlet: "imageContainer"
 
     protocol: 'atom-image-resize:'
