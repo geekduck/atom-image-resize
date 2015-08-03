@@ -72,3 +72,14 @@ describe "ResizableImageView", ->
         waitsFor (()-> obj.loaded), "loading image", 200
         runs ->
           expect(obj.extension).toEqual "png"
+
+  describe "has two input fields", ->
+    it "should be has value", ->
+      obj = null
+      runs ->
+        obj = new ResizableImageView uri: fixtures.base64jpeg
+        obj.trigger "attached"
+      waitsFor (()-> obj.loaded), "loading image", 200
+      runs ->
+        expect(obj.inputWidth.getText()).toEqual("10")
+        expect(obj.inputHeight.getText()).toEqual("10")
