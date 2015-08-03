@@ -83,3 +83,19 @@ describe "ResizableImageView", ->
       runs ->
         expect(obj.inputWidth.getText()).toEqual("10")
         expect(obj.inputHeight.getText()).toEqual("10")
+
+  describe "set/getInputWidth", ->
+    it "should be set number value and get string", ->
+      obj = new ResizableImageView
+      width = 100
+      expect(obj.getInputWidth).toEqual("")
+      obj.setInputWidth width
+      expect(obj.getInputWidth).toEqual(width + "")
+
+  describe "set/getInputHeight", ->
+    it "should be set number value and get string", ->
+      obj = new ResizableImageView
+      height = 100
+      expect(obj.getInputHeight).toEqual("")
+      obj.setInputHeight height
+      expect(obj.getInputHeight).toEqual(height + "")
