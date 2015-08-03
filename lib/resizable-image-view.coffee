@@ -85,27 +85,27 @@ module.exports =
       unit = @selectImageUnit.val()
       if unit == "pixel"
         if event.target.id is @inputWidth[0].id
-          width = Number @inputWidth.getText()
+          width = @getInputWidth()
           console.log "width:#{width}"
           unless isNaN width
             ratio = width / @originalImage.width
             console.dir @inputHeight
-            @inputHeight.setText (Math.round @originalImage.height * ratio) + ""
+            @setInputHeight Math.round @originalImage.height * ratio
         else if event.target.id is @inputHeight[0].id
-          height = Number @inputHeight.getText()
+          height = @getInputHeight()
           console.log "height:#{height}"
           unless isNaN height
             ratio = height / @originalImage.height
-            @inputWidth.setText (Math.round @originalImage.width * ratio) + ""
+            @setInputWidth Math.round @originalImage.width * ratio
       else if unit == "percent"
         if event.target.id is @inputWidth[0].id
-          width = Number @inputWidth.getText()
+          width = @getInputWidth()
           unless isNaN width
-            @inputHeight.setText width + ""
+            @setInputHeight width
         else if event.target.id is @inputHeight[0].id
-          height = Number @inputHeight.getText()
+          height = @getInputHeight()
           unless isNaN height
-            @inputWidth.setText height + ""
+            @setInputWidth height
 
     changeImageUnit: (event)->
       unit = @selectImageUnit.val()
@@ -115,13 +115,13 @@ module.exports =
         @convertPixelToPercent(event)
 
     convertPixelToPercent: ->
-      @inputWidth.setText Math.round(100 * @inputWidth.getText() / @originalImage.width) + ""
-      @inputHeight.setText Math.round(100 * @inputHeight.getText() / @originalImage.height) + ""
+      @setInputWidth Math.round(100 * @getInputWidth() / @originalImage.width)
+      @setInputHeight Math.round(100 * @getInputHeight() / @originalImage.height)
 
 
     convertPercentToPixel: ->
-      @inputWidth.setText Math.round(@originalImage.width * @inputWidth.getText() / 100) + ""
-      @inputHeight.setText Math.round(@originalImage.height * @inputHeight.getText() / 100) + ""
+      @setInputWidth Math.round(@originalImage.width * @getInputWidth() / 100)
+      @setInputHeight Math.round(@originalImage.height * @getInputHeight() / 100)
 
     loadImage: (image)->
       ctx = @canvas[0].getContext '2d'
@@ -133,8 +133,8 @@ module.exports =
       @getExtension()
       @resizeWidth = image.width
       @resizeHeight = image.height
-      @inputWidth.setText image.width + ""
-      @inputHeight.setText image.height + ""
+      @setInputWidth image.width
+      @setInputHeight image.height
       @selectExtension.val @extension
 
     getExtension: ->
@@ -188,13 +188,13 @@ module.exports =
       unit = @selectImageUnit.val()
       if unit == "pixel"
         return {
-          width: @inputWidth.getText()
-          height: @inputHeight.getText()
+          width: @getInputWidth()
+          height: @getInputHeight()
         }
       else if unit == "percent"
         return {
-          width: @originalImage.width * @inputWidth.getText() / 100
-          height: @originalImage.height * @inputHeight.getText() / 100
+          width: @originalImage.width * @getInputWidth() / 100
+          height: @originalImage.height * @getInputHeight() / 100
         }
 
     resize: ->
