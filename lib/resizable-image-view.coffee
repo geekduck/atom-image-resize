@@ -1,6 +1,7 @@
 path = require 'path'
 {$, $$$, View, TextEditorView} = require 'atom-space-pen-views'
 fs = require 'fs-plus'
+_ = require 'underscore-plus'
 
 module.exports =
   class ResizableImageView extends View
@@ -142,6 +143,20 @@ module.exports =
       if @uri?
         @extension = RegExp.$1 if @uri.match(/^data:image\/(png|jpeg|gif)/)?
       @extension = "png" if @extension == "gif" # canvas.toDataURL can set 'jpeg' and 'png' but 'gif'
+
+    setInputWidth: (width)->
+      return if _.isNaN Number width
+      @inputWidth.setText width + ""
+
+    setInputHeight: (height)->
+      return if _.isNaN Number height
+      @inputHeight.setText height + ""
+
+    getInputWidth: ->
+      Number @inputWidth.getText()
+
+    getInputHeight: ->
+      Number @inputHeight.getText()
 
     saveAs: ->
       filePath = @getPath()

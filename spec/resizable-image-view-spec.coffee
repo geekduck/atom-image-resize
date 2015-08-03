@@ -84,18 +84,49 @@ describe "ResizableImageView", ->
         expect(obj.inputWidth.getText()).toEqual("10")
         expect(obj.inputHeight.getText()).toEqual("10")
 
-  describe "set/getInputWidth", ->
-    it "should be set number value and get string", ->
-      obj = new ResizableImageView
-      width = 100
-      expect(obj.getInputWidth).toEqual("")
-      obj.setInputWidth width
-      expect(obj.getInputWidth).toEqual(width + "")
+  describe "input fields", ->
+    describe "set/getInputWidth set number value", ->
+      it "should be get same number", ->
+        obj = new ResizableImageView url: null
+        width = 10000000
+        obj.setInputWidth width
+        expect(obj.getInputWidth()).toEqual(width)
 
-  describe "set/getInputHeight", ->
-    it "should be set number value and get string", ->
-      obj = new ResizableImageView
-      height = 100
-      expect(obj.getInputHeight).toEqual("")
-      obj.setInputHeight height
-      expect(obj.getInputHeight).toEqual(height + "")
+    describe "set/getInputHeight set number value", ->
+      it "should be get same number", ->
+        obj = new ResizableImageView url: null
+        height = 20000000
+        obj.setInputHeight height
+        expect(obj.getInputHeight()).toEqual(height)
+
+    describe "set/getInputWidth set string value", ->
+      it "should be get as number", ->
+        obj = new ResizableImageView url: null
+        width = '10000000'
+        obj.setInputWidth width
+        expect(obj.getInputWidth()).toEqual(Number width)
+
+    describe "set/getInputHeight set string value", ->
+      it "should be get as number", ->
+        obj = new ResizableImageView url: null
+        height = '20000000'
+        obj.setInputHeight height
+        expect(obj.getInputHeight()).toEqual(Number height)
+
+    describe "set/getInputWidth set invalid string value", ->
+      it "should be get old value", ->
+        obj = new ResizableImageView url: null
+        width = 10000000
+        obj.setInputWidth width
+        expect(obj.getInputWidth()).toEqual(width)
+        obj.setInputWidth "invalid string"
+        expect(obj.getInputWidth()).toEqual(width)
+
+    describe "set/getInputHeight set invalid string value", ->
+      it "should be get old value", ->
+        obj = new ResizableImageView url: null
+        height = 20000000
+        obj.setInputHeight height
+        expect(obj.getInputHeight()).toEqual(height)
+        obj.setInputHeight "invalid string"
+        expect(obj.getInputHeight()).toEqual(height)
